@@ -95,6 +95,15 @@ class FluentExtension extends DataExtension
      */
     private static string $frontend_publish_required = FluentExtension::INHERITANCE_MODE_FALLBACK;
 
+    private static $db = [
+        'LocalisationPolicy' => 'Varchar(255)',
+        'AllowedLocales' => 'Text'
+    ];
+
+    private static $defaults = [
+        'LocalisationPolicy' => self::INHERITANCE_MODE_FALLBACK,
+    ];
+
     /**
      * DB fields to be used added in when creating a localised version of the owner's table
      *
@@ -156,6 +165,8 @@ class FluentExtension extends DataExtension
         'ClassName',
         'Theme',
         'Priority',
+        'LocalisationPolicy',
+        'AllowedLocales'
     ];
 
     /**
@@ -499,6 +510,7 @@ class FluentExtension extends DataExtension
             }
         }
 
+
         // Resolve content inheritance (this drives what content is shown)
         $inheritanceMode = $this->getInheritanceMode();
         if ($inheritanceMode === FluentExtension::INHERITANCE_MODE_EXACT) {
@@ -515,6 +527,7 @@ class FluentExtension extends DataExtension
 
             $query->addWhereAny($conditions);
         }
+
 
         // Add the "source locale", which the content exists in up the chain
         $sourceLocaleQuery = 'CASE ';
@@ -601,7 +614,32 @@ class FluentExtension extends DataExtension
                 $localisedPredicate => $parameters
             ];
         }
+
+//        $currentLocale = FluentState::singleton()->getLocale();
+        $state = FluentState::singleton();
+        if ($state->getEnforceAllowedLocales()) {
+            $where[] = sprintf(
+                '"%s"."AllowedLocales" IS NULL OR "%s"."AllowedLocales" LIKE \'%%%s%%\'',
+                $this->owner->baseTable(),
+                $this->owner->baseTable(),
+                $state->getLocale()
+            );
+        }
+
+//        echo '<pre>';
+//        print_r($where);
+//        die();
+
+//            if ($this->owner->baseTable() == 'Element') {
+//                print_r($conditions);
+//                echo "\n\n\n--\n\n\n";
+//            }
+
         $query->setWhere($where);
+
+
+//        echo $query->sql();
+//        die();
     }
 
     /**

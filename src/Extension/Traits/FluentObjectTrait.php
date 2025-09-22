@@ -6,6 +6,9 @@ use SilverStripe\Admin\CMSEditLinkExtension;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig;
@@ -17,6 +20,7 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataQuery;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\Queries\SQLSelect;
+use TractorCow\Fluent\Extension\FluentExtension;
 use TractorCow\Fluent\Model\Locale;
 use TractorCow\Fluent\State\FluentState;
 
@@ -161,13 +165,24 @@ trait FluentObjectTrait
             $this->LinkedLocales(),
             $config
         );
+
+
+        $localesList = [];
+        foreach ($this->LinkedLocales() as $locale) {
+            $localesList[$locale->Locale] = $locale->Title;
+        }
+        $localesCheckboxes = CheckboxSetField::create('AllowedLocales', 'Allowed Locales')
+            ->setSource($localesList);
+
         if ($fields->hasTabSet()) {
+            $fields->addFieldToTab('Root.Locales', $localesCheckboxes);
             $fields->addFieldToTab('Root.Locales', $gridField);
 
             $fields
                 ->fieldByName('Root.Locales')
                 ->setTitle(_t('TractorCow\Fluent\Extension\Traits\FluentObjectTrait.TAB_LOCALISATION', 'Localisation'));
         } else {
+            $fields->push($localesCheckboxes);
             $fields->push($gridField);
         }
     }

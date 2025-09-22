@@ -42,6 +42,9 @@ class FluentState
      */
     protected $isFrontend;
 
+
+    protected $enforce_allowed_locales = false;
+
     /**
      * Get the currently active locale code
      *
@@ -134,6 +137,17 @@ class FluentState
     {
         $this->isFrontend = $isFrontend;
         return $this;
+    }
+
+    public function setEnforceAllowedLocales($enforce)
+    {
+        $this->enforce_allowed_locales = $enforce;
+        return $this;
+    }
+
+    public function getEnforceAllowedLocales()
+    {
+        return $this->enforce_allowed_locales;
     }
 
     /**

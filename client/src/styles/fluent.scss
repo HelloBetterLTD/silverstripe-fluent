@@ -7,6 +7,9 @@ $fluent-color-base: rgb(0, 138, 0);
 // $fluent-color-invisible: #566b8d
 $fluent-color-invisible: rgb(155, 40, 40);
 
+// $fluent-color-invisible: #FF0000
+$fluent-color-excluded: rgb(255, 0, 0);
+
 // $fluent-color-invisible-text
 $fluent-color-invisible-text: $text-muted;
 
@@ -99,6 +102,10 @@ $fluent-color-localised: rgb(102, 15, 242);
 
   &--invisible {
     background-color: $fluent-color-invisible;
+  }
+
+  &--excluded {
+    background-color: $fluent-color-excluded;
   }
 
   &--localised {

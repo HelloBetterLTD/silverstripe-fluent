@@ -68,60 +68,76 @@ trait FluentBadgeTrait
         $locale,
         $extraProperties = []
     ) {
-        $info = RecordLocale::create($record, $locale);
-        $sourceLocale = FluentState::singleton()->withState(
-            static function (FluentState $state) use ($info): ?Locale {
-                // We are currently in the CMS context, but we want to show to the content author
-                // what the data state is in the frontend context
-                $state->setIsFrontend(true);
+        $ret = [];
+        foreach (Locale::get() as $localeRecord) {
+            $info = RecordLocale::create($record, $localeRecord);
+            $sourceLocale = FluentState::singleton()->withState(
+                static function (FluentState $state) use ($info): ?Locale {
+                    // We are currently in the CMS context, but we want to show to the content author
+                    // what the data state is in the frontend context
+                    $state->setIsFrontend(true);
 
-                return $info->getSourceLocale();
+                    return $info->getSourceLocale();
+                }
+            );
+
+            // Build new badge
+            $badgeClasses = ['badge', 'fluent-badge'];
+            if ($info->IsExcluded()) {
+                // If the object has been localised in the current locale, show a "localised" state
+                $badgeClasses[] = 'fluent-badge--excluded';
+                $tooltip = _t(
+                    'TractorCow\Fluent\Extension\Traits\FluentBadgeTrait.BadgeExcludedLocalised',
+                    'Excluded from {locale}',
+                    [
+                        'locale' => $localeRecord->getTitle()
+                    ]
+                );
+            } elseif ($info->IsDraft()) {
+                // If the object has been localised in the current locale, show a "localised" state
+                $badgeClasses[] = 'fluent-badge--default';
+                $tooltip = _t(
+                    'TractorCow\Fluent\Extension\Traits\FluentBadgeTrait.BadgeLocalised',
+                    'Localised in {locale}',
+                    [
+                        'locale' => $localeRecord->getTitle()
+                    ]
+                );
+            } elseif ($sourceLocale) {
+                // If object is inheriting content from another locale show the source
+                $badgeClasses[] = 'fluent-badge--localised';
+                $tooltip = _t(
+                    'TractorCow\Fluent\Extension\Traits\FluentBadgeTrait.BadgeInherited',
+                    'Inherited from {locale}',
+                    [
+                        'locale' => $sourceLocale->getTitle()
+                    ]
+                );
+            } else {
+                // Otherwise the object is missing a content source and needs to be remedied
+                // by either localising or seting up a locale fallback
+                $badgeClasses[] = 'fluent-badge--invisible';
+                $tooltip = _t(
+                    'TractorCow\Fluent\Extension\Traits\FluentBadgeTrait.BaggeInvisible',
+                    '{type} has no available content in {locale}, localise the {type} or provide a locale fallback',
+                    [
+                        'type' => $record->i18n_singular_name(),
+                        'locale' => $localeRecord->getTitle(),
+                    ]
+                );
             }
-        );
 
-        // Build new badge
-        $badgeClasses = ['badge', 'fluent-badge'];
-        if ($info->IsDraft()) {
-            // If the object has been localised in the current locale, show a "localised" state
-            $badgeClasses[] = 'fluent-badge--default';
-            $tooltip = _t(
-                'TractorCow\Fluent\Extension\Traits\FluentBadgeTrait.BadgeLocalised',
-                'Localised in {locale}',
+            $attributes = array_merge(
                 [
-                    'locale' => $locale->getTitle()
-                ]
+                    'class' => implode(' ', $badgeClasses),
+                    'title' => $tooltip
+                ],
+                $extraProperties
             );
-        } elseif ($sourceLocale) {
-            // If object is inheriting content from another locale show the source
-            $badgeClasses[] = 'fluent-badge--localised';
-            $tooltip = _t(
-                'TractorCow\Fluent\Extension\Traits\FluentBadgeTrait.BadgeInherited',
-                'Inherited from {locale}',
-                [
-                    'locale' => $sourceLocale->getTitle()
-                ]
-            );
-        } else {
-            // Otherwise the object is missing a content source and needs to be remedied
-            // by either localising or seting up a locale fallback
-            $badgeClasses[] = 'fluent-badge--invisible';
-            $tooltip = _t(
-                'TractorCow\Fluent\Extension\Traits\FluentBadgeTrait.BaggeInvisible',
-                '{type} has no available content in {locale}, localise the {type} or provide a locale fallback',
-                [
-                    'type' => $record->i18n_singular_name(),
-                    'locale' => $locale->getTitle(),
-                ]
-            );
+            $ret[] = HTML::createTag('span', $attributes, $localeRecord->getBadgeLabel());
         }
 
-        $attributes = array_merge(
-            [
-                'class' => implode(' ', $badgeClasses),
-                'title' => $tooltip
-            ],
-            $extraProperties
-        );
-        return HTML::createTag('span', $attributes, $locale->getBadgeLabel());
+
+        return '<div>' . implode("\n", $ret) . '</div>';
     }
 }

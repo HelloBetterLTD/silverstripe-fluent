@@ -96,12 +96,7 @@ class FluentExtension extends DataExtension
     private static string $frontend_publish_required = FluentExtension::INHERITANCE_MODE_FALLBACK;
 
     private static $db = [
-        'LocalisationPolicy' => 'Varchar(255)',
         'AllowedLocales' => 'Text'
-    ];
-
-    private static $defaults = [
-        'LocalisationPolicy' => self::INHERITANCE_MODE_FALLBACK,
     ];
 
     /**
@@ -165,7 +160,6 @@ class FluentExtension extends DataExtension
         'ClassName',
         'Theme',
         'Priority',
-        'LocalisationPolicy',
         'AllowedLocales'
     ];
 

@@ -311,6 +311,15 @@ class RecordLocale extends ViewableData
         return true;
     }
 
+    public function IsExcluded()
+    {
+        $record = $this->getOriginalRecord();
+        if ($record->AllowedLocales) {
+            return !str_contains($record->AllowedLocales, $this->getLocale());
+        }
+        return false;
+    }
+
     /**
      * Check if record is visible on draft
      *

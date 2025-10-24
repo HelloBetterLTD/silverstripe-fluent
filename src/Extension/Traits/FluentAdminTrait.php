@@ -218,7 +218,11 @@ trait FluentAdminTrait
         }
 
         // Make sure the menu isn't going to get cut off
-        $actions->insertBefore('RightGroup', $rootTabSet);
+        if ($actions->fieldByName('ActionMenus')) {
+            $actions->insertBefore('ActionMenus', $rootTabSet);
+        } else {
+            $actions->insertBefore('RightGroup', $rootTabSet);
+        }
     }
 
     /**

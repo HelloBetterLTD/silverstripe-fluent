@@ -101,7 +101,8 @@ trait FluentAdminTrait
             return;
         }
 
-        $hasMajorActions = $actions->fieldByName('MajorActions.action_publish');
+        $hasMajorActions = $actions->fieldByName('MajorActions.action_publish')
+            || $actions->fieldByName('MajorActions.action_doPublish');
         $publishAllLocales = null;
 
         // Build root tabset that makes up the menu
@@ -224,11 +225,11 @@ trait FluentAdminTrait
 
 
 
-        if ($actions->fieldByName('MajorActions.action_publish') && $publishAllLocales) {
+        if ($hasMajorActions && $publishAllLocales) {
             $actions->fieldByName('MajorActions')
                 ->push($publishAllLocales);
         }
-        
+
         // Make sure the menu isn't going to get cut off
         if ($actions->fieldByName('ActionMenus')) {
             $actions->insertBefore('ActionMenus', $rootTabSet);

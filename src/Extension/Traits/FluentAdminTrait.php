@@ -101,6 +101,9 @@ trait FluentAdminTrait
             return;
         }
 
+        $hasMajorActions = $actions->fieldByName('MajorActions.action_publish');
+        $publishAllLocales = null;
+
         // Build root tabset that makes up the menu
         $rootTabSet = TabSet::create('FluentMenu')->setTemplate(
             'FluentAdminTabSet'
@@ -164,15 +167,17 @@ trait FluentAdminTrait
                     )
                 )->addExtraClass('btn-outline-danger')
             );
-            $moreOptions->push(
-                FormAction::create(
-                    'publishFluent',
-                    _t(
-                        'TractorCow\Fluent\Extension\Traits\FluentAdminTrait.Label_publishFluent',
-                        'Save & Publish (all locales)'
-                    )
-                )->addExtraClass('btn-primary')
-            );
+            $publishAllLocales = FormAction::create(
+                'publishFluent',
+                _t(
+                    'TractorCow\Fluent\Extension\Traits\FluentAdminTrait.Label_publishFluent',
+                    'Save & Publish (all locales)'
+                )
+            )->addExtraClass('btn-primary');
+            if (!$hasMajorActions) {
+                $moreOptions->push($publishAllLocales);
+            }
+
         } else {
             $moreOptions->push(
                 FormAction::create(
@@ -217,6 +222,13 @@ trait FluentAdminTrait
             }
         }
 
+
+
+        if ($actions->fieldByName('MajorActions.action_publish') && $publishAllLocales) {
+            $actions->fieldByName('MajorActions')
+                ->push($publishAllLocales);
+        }
+        
         // Make sure the menu isn't going to get cut off
         if ($actions->fieldByName('ActionMenus')) {
             $actions->insertBefore('ActionMenus', $rootTabSet);

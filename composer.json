@@ -31,9 +31,8 @@
     },
     "require": {
         "php": "^8.3",
-        "silverstripe/framework": "^6.1",
-        "silverstripe/admin": "^3",
-        "silverstripe/versioned": "^3",
+        "silverstripe/vendor-plugin": "^3",
+        "silverstripe/recipe-cms": "^6",
         "symbiote/silverstripe-gridfieldextensions": "^5",
         "ext-json": "*"
     },
@@ -49,6 +48,21 @@
     "extra": {
         "expose": [
             "client/dist"
+        ],
+        "project-files-installed": [
+            ".htaccess",
+            "app/.htaccess",
+            "app/_config/mimevalidator.yml",
+            "app/_config/mysite.yml",
+            "app/src/Page.php",
+            "app/src/PageController.php",
+            "behat.yml",
+            "phpunit.xml.dist"
+        ],
+        "public-files-installed": [
+            ".htaccess",
+            "index.php",
+            "web.config"
         ]
     },
     "autoload": {
@@ -68,7 +82,8 @@
             "composer/installers": true,
             "silverstripe/recipe-plugin": true,
             "silverstripe/vendor-plugin": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
         }
     }
 }
